@@ -9,8 +9,6 @@ const refs = {
   hours: document.querySelector('[data-hours]'),
   minutes: document.querySelector('[data-minutes]'),
   seconds: document.querySelector('[data-seconds]'),
-  value: document.querySelectorAll('.value'),
-  label: document.querySelectorAll('.label'),
 };
 
 function addLeadingZero(value) {
@@ -23,13 +21,14 @@ refs.start.disabled = true;
 const options = {
   enableTime: true,
   time_24hr: true,
-  defaultDate: new Date(),
+  defaultDate: Date.now(),
   minuteIncrement: 1,
-  onClose(selectedDates) {
-    if (selectedDates[0] > new Date()) {
+  onClose([selectedDates]) {
+    if (selectedDates > Date.now()) {
       refs.start.disabled = false;
-      userDate = selectedDates[0];
+      userDate = selectedDates;
     } else {
+      refs.start.disabled = true;
       Notiflix.Notify.failure('Please choose a date in the future');
     }
   },
@@ -52,17 +51,23 @@ class Timer {
       const currentTime = Date.now();
       const deltaTime = userDate - currentTime;
       const components = convertMs(deltaTime);
-
-      refs.days.textContent = addLeadingZero(components.days);
-      refs.hours.textContent = addLeadingZero(components.hours);
-      refs.minutes.textContent = addLeadingZero(components.minutes);
-      refs.seconds.textContent = addLeadingZero(components.seconds);
-
-      if (deltaTime <= 0) {
-        clearInterval(timer);
+      this.visuallyChange(components);
+      if (deltaTime < 0) {
+        this.stop();
         return;
       }
     }, 1000);
+  }
+
+  stop() {
+    clearInterval(this.intervalId);
+  }
+
+  visuallyChange(object) {
+    refs.days.textContent = addLeadingZero(object.days);
+    refs.hours.textContent = addLeadingZero(object.hours);
+    refs.minutes.textContent = addLeadingZero(object.minutes);
+    refs.seconds.textContent = addLeadingZero(object.seconds);
   }
 }
 
@@ -89,4 +94,4 @@ function convertMs(ms) {
 }
 // console.log(convertMs(140000));
 
-flatpickr('input[type=text]', options);
+flatpickr(refs.input, options);
