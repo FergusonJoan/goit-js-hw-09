@@ -52,7 +52,7 @@ class Timer {
       const deltaTime = userDate - currentTime;
       const components = convertMs(deltaTime);
       this.visuallyChange(components);
-      if (deltaTime < 0) {
+      if (deltaTime < 999) {
         this.stop();
         return;
       }
